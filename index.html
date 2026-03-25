@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Horizon</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&display=swap');
+        body { 
+            background: #000; color: #fff; font-family: 'Space Grotesk', sans-serif;
+            height: 100vh; margin: 0; overflow: hidden; touch-action: none;
+        }
+        .is-immersed .hide { opacity: 0; pointer-events: none; }
+        .breath { 
+            width: 20px; height: 20px; background: #ff5f1f; border-radius: 50%;
+            opacity: 0; transition: transform 4s ease-in-out, opacity 1s;
+            filter: drop-shadow(0 0 15px #ff5f1f);
+        }
+    </style>
+</head>
+<body class="flex flex-col p-10 justify-between" id="content">
+
+    <div class="hide transition-opacity duration-1000">
+        <h1 class="text-5xl font-bold tracking-tighter uppercase orange-glow">Horizon</h1>
+        <p id="date" class="text-orange-500 tracking-[0.5em] text-[10px] mt-4 uppercase font-bold"></p>
+    </div>
+
+    <div class="hide transition-opacity duration-1000 bg-white/5 p-10 rounded-[3rem] border-l-4 border-orange-600">
+        <p class="text-2xl italic font-light">"The soul becomes dyed with the color of its thoughts."</p>
+    </div>
+
+    <button id="trigger" class="w-full py-12 rounded-[3rem] border border-orange-500/30 bg-orange-500/5 flex flex-col items-center z-50">
+        <div id="dot" class="breath mb-4"></div>
+        <span id="txt" class="text-xl font-bold uppercase tracking-widest">Start</span>
+    </button>
+
+    <script>
+        document.getElementById('date').innerText = new Date().toLocaleDateString();
+        const btn = document.getElementById('trigger');
+        const dot = document.getElementById('dot');
+        const body = document.getElementById('content');
+        
+        let audioCtx = null;
+        let oscillator = null;
+        let active = false;
+
+        // PIXEL 8 PRO "HARD-WAKE"
+        btn.addEventListener('pointerdown', (e) => {
+            if (navigator.vibrate) navigator.vibrate(50);
+            
+            if (!active) {
+                // Initialize Audio Context (Standard for PWAs)
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Instead of a file, we generate a "White Noise" buffer (Ocean sound)
+                const bufferSize = 2 * audioCtx.sampleRate,
+                noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate),
+                output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
+
+                const whiteNoise = audioCtx.createBufferSource();
+                whiteNoise.buffer = noiseBuffer;
+                whiteNoise.loop = true;
+
+                // Filter the noise to sound like the ocean
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 400;
+
+                whiteNoise.connect(filter);
+                filter.connect(audioCtx.destination);
+                
+                whiteNoise.start();
+                oscillator = whiteNoise;
+                
+                active = true;
+                body.classList.add('is-immersed');
+                dot.style.opacity = "1";
+                document.getElementById('txt').innerText = "";
+                
+                // Breath cycle
+                const pulse = () => {
+                    if(!active) return;
+                    dot.style.transform = "scale(8)";
+                    setTimeout(() => { 
+                        if(active) { dot.style.transform = "scale(1)"; setTimeout(pulse, 4000); }
+                    }, 4000);
+                };
+                pulse();
+            } else {
+                location.reload(); // Hard reset for clean exit
+            }
+        });
+    </script>
+</body>
+</html>
