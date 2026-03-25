@@ -1,98 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Horizon</title>
-    <link rel="manifest" href="manifest.json">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&display=swap');
-        body { 
-            background: #000; color: #fff; font-family: 'Space Grotesk', sans-serif;
-            height: 100vh; margin: 0; overflow: hidden; touch-action: none;
-        }
-        .is-immersed .hide { opacity: 0; pointer-events: none; }
-        .breath { 
-            width: 20px; height: 20px; background: #ff5f1f; border-radius: 50%;
-            opacity: 0; transition: transform 4s ease-in-out, opacity 1s;
-            filter: drop-shadow(0 0 15px #ff5f1f);
-        }
-    </style>
-</head>
-<body class="flex flex-col p-10 justify-between" id="content">
+import React, { useState, useEffect } from 'react';
 
-    <div class="hide transition-opacity duration-1000">
-        <h1 class="text-5xl font-bold tracking-tighter uppercase orange-glow">Horizon</h1>
-        <p id="date" class="text-orange-500 tracking-[0.5em] text-[10px] mt-4 uppercase font-bold"></p>
-    </div>
+const HorizonOceanStealth = () => {
+  const [isActive, setIsActive] = useState(false);
+  const [showGhostField, setShowGhostField] = useState(false);
+  const [reflection, setReflection] = useState("");
 
-    <div class="hide transition-opacity duration-1000 bg-white/5 p-10 rounded-[3rem] border-l-4 border-orange-600">
-        <p class="text-2xl italic font-light">"The soul becomes dyed with the color of its thoughts."</p>
-    </div>
+  // Update this ID with your specific Spotify Playlist ID
+  const SPOTIFY_LINK = "spotify:playlist:0G38p5E6BvHwZ4j1v8i2Oq";
 
-    <button id="trigger" class="w-full py-12 rounded-[3rem] border border-orange-500/30 bg-orange-500/5 flex flex-col items-center z-50">
-        <div id="dot" class="breath mb-4"></div>
-        <span id="txt" class="text-xl font-bold uppercase tracking-widest">Start</span>
-    </button>
+  const handleToggleFocus = () => {
+    if (!isActive) {
+      // Trigger Spotify immediately
+      window.location.href = SPOTIFY_LINK;
+      setIsActive(true);
+      setShowGhostField(false);
+    } else {
+      setIsActive(false);
+      // Delay the ghost field slightly for a smooth transition
+      setTimeout(() => setShowGhostField(true), 800);
+    }
+  };
 
-    <script>
-        document.getElementById('date').innerText = new Date().toLocaleDateString();
-        const btn = document.getElementById('trigger');
-        const dot = document.getElementById('dot');
-        const body = document.getElementById('content');
+  return (
+    <div className="fixed inset-0 bg-stealth-black flex flex-col items-center justify-between py-20 px-6 select-none overflow-hidden">
+      
+      {/* Top Branding - Fades during focus */}
+      <header className={`transition-opacity duration-1000 ${isActive ? 'opacity-5' : 'opacity-100'}`}>
+        <h1 className="text-xs tracking-[0.8em] uppercase font-extralight text-ocean-blue/80">
+          Horizon
+        </h1>
+      </header>
+
+      {/* Main Interaction Zone */}
+      <main className="relative flex flex-col items-center justify-center flex-1 w-full">
         
-        let audioCtx = null;
-        let oscillator = null;
-        let active = false;
+        {/* The Deep Focus Button (Orbiter Style) */}
+        <div className="relative group cursor-pointer" onClick={handleToggleFocus}>
+          
+          {/* Pulsing Breath-Rings */}
+          {isActive && (
+            <>
+              <div className="absolute inset-0 rounded-full animate-breath border border-ocean-blue/40" />
+              <div className="absolute inset-0 rounded-full animate-breath border border-ocean-blue/20 [animation-delay:2s]" />
+            </>
+          )}
 
-        // PIXEL 8 PRO "HARD-WAKE"
-        btn.addEventListener('pointerdown', (e) => {
-            if (navigator.vibrate) navigator.vibrate(50);
-            
-            if (!active) {
-                // Initialize Audio Context (Standard for PWAs)
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // Instead of a file, we generate a "White Noise" buffer (Ocean sound)
-                const bufferSize = 2 * audioCtx.sampleRate,
-                noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate),
-                output = noiseBuffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
+          {/* The Primary Button */}
+          <div className={`relative z-10 w-64 h-64 rounded-full border flex items-center justify-center transition-all duration-1000 ease-out
+            ${isActive 
+              ? 'border-ocean-blue bg-ocean-blue/5 shadow-[0_0_80px_rgba(0,119,190,0.2)]' 
+              : 'border-white/10 bg-transparent'}`}
+          >
+            <div className="text-center">
+              <p className={`text-[10px] tracking-[0.4em] uppercase mb-2 transition-colors duration-700
+                ${isActive ? 'text-ocean-blue' : 'text-white/20'}`}>
+                {isActive ? 'Immersion' : 'Ready'}
+              </p>
+              <div className={`h-[1px] w-8 mx-auto transition-all duration-700
+                ${isActive ? 'bg-ocean-blue w-12' : 'bg-white/10'}`} />
+            </div>
+          </div>
+        </div>
 
-                const whiteNoise = audioCtx.createBufferSource();
-                whiteNoise.buffer = noiseBuffer;
-                whiteNoise.loop = true;
+        {/* Ghost Reflection Field */}
+        <div className="absolute bottom-[-100px] w-full flex justify-center">
+          {showGhostField && !isActive && (
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 w-full max-w-xs">
+              <input 
+                autoFocus
+                type="text"
+                value={reflection}
+                onChange={(e) => setReflection(e.target.value)}
+                placeholder="What was achieved?"
+                className="w-full bg-transparent border-b border-ocean-blue/20 py-4 text-center text-ocean-blue font-light italic outline-none focus:border-ocean-blue/60 transition-colors placeholder:text-white/10"
+              />
+            </div>
+          )}
+        </div>
+      </main>
 
-                // Filter the noise to sound like the ocean
-                const filter = audioCtx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.value = 400;
+      {/* Footer Status */}
+      <footer className={`transition-opacity duration-1000 ${isActive ? 'opacity-0' : 'opacity-30'}`}>
+        <p className="text-[9px] tracking-widest uppercase text-white">
+          Efficiency through Focus
+        </p>
+      </footer>
+    </div>
+  );
+};
 
-                whiteNoise.connect(filter);
-                filter.connect(audioCtx.destination);
-                
-                whiteNoise.start();
-                oscillator = whiteNoise;
-                
-                active = true;
-                body.classList.add('is-immersed');
-                dot.style.opacity = "1";
-                document.getElementById('txt').innerText = "";
-                
-                // Breath cycle
-                const pulse = () => {
-                    if(!active) return;
-                    dot.style.transform = "scale(8)";
-                    setTimeout(() => { 
-                        if(active) { dot.style.transform = "scale(1)"; setTimeout(pulse, 4000); }
-                    }, 4000);
-                };
-                pulse();
-            } else {
-                location.reload(); // Hard reset for clean exit
-            }
-        });
-    </script>
-</body>
-</html>
+export default HorizonOceanStealth;
