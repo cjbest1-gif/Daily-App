@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Chris' Orbiter</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#050a15">
+    <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/96/space-shuttle.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --accent: #38bdf8; }
+        body { 
+            margin: 0; background: #000; color: #94a3b8; overflow: hidden; 
+            -webkit-tap-highlight-color: transparent; font-family: system-ui, sans-serif;
+            height: 100vh; display: flex; flex-direction: column;
+        }
+
+        /* GPU ACCELERATED COSMIC BG */
+        .cosmic-container { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at bottom, #0a1122 0%, #050a15 100%); }
+        .star { 
+            position: absolute; background: white; border-radius: 50%; 
+            will-change: transform, opacity;
+            animation: move-star var(--d) linear infinite; 
+        }
+        @keyframes move-star {
+            from { transform: translateY(0); opacity: 0; }
+            50% { opacity: 0.7; }
+            to { transform: translateY(-100vh); opacity: 0; }
+        }
+
+        .ship {
+            position: absolute; z-index: -1; width: 40px; height: 40px;
+            background: url('https://img.icons8.com/fluency/96/sci-fi-interceptor.png') no-repeat center;
+            background-size: contain; filter: drop-shadow(0 0 10px var(--accent));
+            animation: fly-by 20s linear infinite; opacity: 0;
+        }
+        @keyframes fly-by {
+            0% { transform: translate(-100px, 100vh) rotate(-45deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translate(120vw, -20vh) rotate(-45deg); opacity: 0; }
+        }
+
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .active-btn { background: rgba(56, 189, 248, 0.3) !important; border-color: var(--accent) !important; color: white !important; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); }
+        .start-active { background: var(--accent) !important; color: white !important; opacity: 1 !important; pointer-events: auto !important; }
+        
+        input::placeholder { color: rgba(255, 255, 255, 0.2); }
+    </style>
+</head>
+<body onclick="unlockPixelAudio()">
+    <div id="star-field" class="cosmic-container"></div>
+    <div class="ship"></div>
+
+    <main class="flex-1 p-6 max-w-md mx-auto w-full flex flex-col justify-center">
+        <header class="mb-8 flex justify-between items-center">
+            <h1 class="text-3xl font-black text-white italic tracking-tighter uppercase">Orbiter</h1>
+            <img src="https://img.icons8.com/fluency/48/space-shuttle.png" class="w-8 h-8 animate-bounce" alt="logo">
+        </header>
+
+        <div class="glass rounded-3xl p-6 mb-6">
+            <p id="quote" class="text-sm text-slate-200 leading-relaxed italic"></p>
+        </div>
+
+        <div class="glass rounded-3xl p-6 mb-8">
+            <h2 class="text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-3">Log Mission Progress</h2>
+            <input type="text" id="win-input" oninput="toggleLaunch()" placeholder="What went right today?" 
+                class="w-full bg-transparent border-b border-white/10 py-2 text-white focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="handleSound('ocean')" id="btn-ocean" class="py-5 glass rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all">Ocean</button>
+            <button onclick="handleSound('storm')" id="btn-storm" class="py-5 glass rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all">Storm</button>
+            <button onclick="handleSound('rain')" id="btn-rain" class="py-5 glass rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all">Rain</button>
+            <button onclick="handleSound('lofi')" id="btn-lofi" class="py-5 glass rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all">Lofi</button>
+        </div>
+    </main>
+
+    <footer class="p-8">
+        <button id="launch-btn" onclick="startTimer()" class="w-full py-6 rounded-3xl font-black tracking-[0.3em] text-xs uppercase opacity-20 pointer-events-none bg-slate-800 transition-all">
+            Initiate Orbit
+        </button>
+    </footer>
+
+    <div id="timer-screen" class="hidden fixed inset-0 bg-black z-50 flex-col items-center justify-center">
+        <div id="timer-display" class="text-8xl font-thin text-white mb-12">60:00</div>
+        <button onclick="endTimer()" class="px-8 py-3 glass rounded-full text-[10px] uppercase tracking-widest">Abort</button>
+    </div>
+
+    <audio id="snd-ocean" loop src="https://www.soundjay.com/nature/ocean-waves-1.mp3"></audio>
+    <audio id="snd-storm" loop src="https://www.soundjay.com/nature/thunderstorm-01.mp3"></audio>
+    <audio id="snd-rain" loop src="https://www.soundjay.com/nature/rain-01.mp3"></audio>
+    <audio id="snd-lofi" loop src="https://assets.mixkit.co/music/preview/mixkit-night-city-744.mp3"></audio>
+
+    <script>
+        // Star Generation
+        const field = document.getElementById('star-field');
+        for(let i=0; i<80; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            s.style.left = Math.random() * 100 + '%';
+            s.style.top = Math.random() * 100 + '%';
+            const size = Math.random() * 2 + 1 + 'px';
+            s.style.width = size; s.style.height = size;
+            s.style.setProperty('--d', (Math.random() * 5 + 3) + 's');
+            field.appendChild(s);
+        }
+
+        const quotes = [
+            "Waste no more time arguing what a good man should be. Be one. — Marcus Aurelius",
+            "He who is brave is free. — Seneca",
+            "The soul becomes dyed with the color of its thoughts. — Marcus Aurelius",
+            "Everything hangs on one's thinking. — Seneca"
+        ];
+        document.getElementById('quote').innerText = quotes[Math.floor(Math.random()*quotes.length)];
+
+        // PIXEL 8 AUDIO ENGINE
+        let audioUnlocked = false;
+        function unlockPixelAudio() {
+            if (audioUnlocked) return;
+            const audios = document.querySelectorAll('audio');
+            audios.forEach(a => {
+                a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
+            });
+            audioUnlocked = true;
+            console.log("System: Audio Context Primed");
+        }
+
+        let activeSnd = null;
+        function handleSound(type) {
+            unlockPixelAudio(); 
+            const target = document.getElementById('snd-' + type);
+            const btn = document.getElementById('btn-' + type);
+
+            if (activeSnd === target) {
+                target.pause();
+                activeSnd = null;
+                btn.classList.remove('active-btn');
+            } else {
+                if (activeSnd) {
+                    activeSnd.pause();
+                    document.querySelectorAll('.active-btn').forEach(b => b.classList.remove('active-btn'));
+                }
+                target.play().then(() => {
+                    activeSnd = target;
+                    btn.classList.add('active-btn');
+                }).catch(() => alert("Tap again to confirm audio"));
+            }
+        }
+
+        function toggleLaunch() {
+            const input = document.getElementById('win-input').value.trim();
+            document.getElementById('launch-btn').className = input.length > 0 
+                ? "w-full py-6 rounded-3xl font-black tracking-[0.3em] text-xs uppercase bg-sky-500 text-white shadow-lg" 
+                : "w-full py-6 rounded-3xl font-black tracking-[0.3em] text-xs uppercase opacity-20 pointer-events-none bg-slate-800";
+        }
+
+        let clock;
+        function startTimer() {
+            document.getElementById('timer-screen').style.display = 'flex';
+            let time = 3600;
+            clock = setInterval(() => {
+                let m = Math.floor(time/60), s = time%60;
+                document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+                if (--time < 0) endTimer();
+            }, 1000);
+        }
+
+        function endTimer() {
+            clearInterval(clock);
+            document.getElementById('timer-screen').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
