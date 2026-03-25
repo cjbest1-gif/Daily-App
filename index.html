@@ -6,133 +6,139 @@
     <title>Horizon</title>
     
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#000000">
     <link rel="apple-touch-icon" href="https://img.icons8.com/fluency-systems-filled/192/ff5f1f/horizon.png">
     <link rel="icon" type="image/png" href="https://img.icons8.com/fluency-systems-filled/192/ff5f1f/horizon.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
-        :root { --orange: #ff5f1f; --black: #000000; }
-        body { 
-            font-family: 'Space Grotesk', sans-serif; background: var(--black); color: #ffffff;
-            -webkit-tap-highlight-color: transparent; height: 100vh; overflow: hidden;
-            display: flex; flex-direction: column; user-select: none; margin: 0;
+        
+        /* FIX 2: Re-enable Pull-to-Refresh if desired, but prevent bounce */
+        html, body { 
+            overscroll-behavior-y: contain; 
+            background: #000; 
+            height: 100%; 
+            margin: 0; 
+            padding: 0;
+            user-select: none;
         }
 
-        .fade-element { transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), transform 1.5s ease; opacity: 1; }
-        .is-immersed .fade-element { opacity: 0; transform: translateY(-30px); pointer-events: none; }
+        body { 
+            font-family: 'Space Grotesk', sans-serif; 
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fade-element { transition: opacity 1s ease, transform 1s ease; }
+        .is-immersed .fade-element { opacity: 0; transform: translateY(-20px); pointer-events: none; }
 
         .glass-card {
-            background: rgba(255, 95, 31, 0.04); border: 1px solid rgba(255, 95, 31, 0.15);
-            backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px);
+            background: rgba(255, 95, 31, 0.05);
+            border: 1px solid rgba(255, 95, 31, 0.2);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+        }
+
+        /* FIX 3: Higher Z-Index for Button to ensure it captures Taps */
+        #main-trigger {
+            z-index: 9999;
+            position: relative;
+            touch-action: manipulation;
         }
 
         .breath-ring {
-            width: 20px; height: 20px; background: var(--orange); border-radius: 50%;
-            opacity: 0; transition: transform 4s ease-in-out, opacity 1.2s ease;
-            filter: drop-shadow(0 0 15px var(--orange));
+            width: 14px; height: 14px; background: #ff5f1f; border-radius: 50%;
+            opacity: 0; transition: transform 4s ease-in-out, opacity 1s;
         }
-
-        #horizon-trigger { transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; }
-        .is-immersed #horizon-trigger { background: transparent !important; border-color: transparent !important; box-shadow: none !important; transform: translateY(-25vh); }
-        .active-glow { box-shadow: 0 0 50px rgba(255, 95, 31, 0.2); border-color: var(--orange) !important; }
     </style>
 </head>
-<body class="p-8 pb-12" id="root-body">
+<body class="p-8" id="app-shell">
 
-    <header class="mt-12 flex flex-col fade-element">
-        <h1 class="text-6xl font-bold tracking-tighter uppercase text-white leading-none">Horizon</h1>
-        <p id="date-label" class="text-[10px] tracking-[0.7em] text-orange-500 font-bold mt-5 uppercase"></p>
+    <header class="mt-12 fade-element">
+        <h1 class="text-5xl font-bold tracking-tighter uppercase">Horizon</h1>
+        <p id="date-label" class="text-[10px] tracking-[0.5em] text-orange-500 font-bold mt-4 uppercase"></p>
     </header>
 
     <main class="flex-1 flex flex-col justify-center fade-element">
-        <div class="glass-card p-12 rounded-[4rem] border-l-[8px] border-orange-600 shadow-2xl">
-            <p id="quote-body" class="text-2xl leading-tight font-light text-white/95 italic"></p>
-            <p id="quote-cite" class="mt-10 text-[10px] font-bold uppercase tracking-[0.5em] text-orange-500/40"></p>
+        <div class="glass-card p-10 rounded-[3rem] border-l-4 border-orange-600">
+            <p id="quote" class="text-2xl font-light italic text-white/90"></p>
+            <p id="author" class="mt-6 text-[10px] uppercase tracking-widest text-orange-500/40"></p>
         </div>
     </main>
 
-    <footer class="relative z-50">
-        <button id="horizon-trigger" class="w-full py-14 glass-card rounded-[3.5rem] flex flex-col items-center justify-center active:scale-95 transition-transform">
-            <div id="breath-node" class="breath-ring mb-5"></div>
-            <span id="btn-status" class="text-[9px] font-bold uppercase tracking-[0.8em] text-white/20">Standby</span>
-            <span id="btn-text" class="text-xl font-bold text-white mt-1 tracking-tight">Begin Immersion</span>
+    <footer class="mb-10">
+        <button id="main-trigger" class="w-full py-12 glass-card rounded-[2.5rem] flex flex-col items-center justify-center">
+            <div id="breath" class="breath-ring mb-4"></div>
+            <span id="status" class="text-[9px] uppercase tracking-[0.6em] text-white/20">Standby</span>
+            <span id="label" class="text-xl font-bold tracking-tight">Begin Immersion</span>
         </button>
-        <p id="system-log" class="text-[7px] text-white/5 mt-8 text-center uppercase tracking-[0.3em]">Hardware Validated · Pixel 8 Pro</p>
     </footer>
 
-    <audio id="audio-engine" loop preload="auto">
+    <audio id="audio-engine" loop crossorigin="anonymous">
         <source src="https://www.soundjay.com/nature/ocean-waves-1.mp3" type="audio/mpeg">
     </audio>
 
     <script>
+        const btn = document.getElementById('main-trigger');
         const audio = document.getElementById('audio-engine');
-        const trigger = document.getElementById('horizon-trigger');
-        const body = document.getElementById('root-body');
-        const breath = document.getElementById('breath-node');
-        const log = document.getElementById('system-log');
-        let isActive = false;
-        let wakeLock = null;
+        const shell = document.getElementById('app-shell');
+        const breath = document.getElementById('breath');
+        
+        let active = false;
 
-        // UI Setup
+        // Date & Quote Setup
         document.getElementById('date-label').innerText = new Date().toLocaleDateString(undefined, {weekday: 'long', month: 'short', day: 'numeric'});
-        const quotes = [
-            { t: "You have power over your mind—not outside events.", a: "Marcus Aurelius" },
-            { t: "The soul becomes dyed with the color of its thoughts.", a: "Marcus Aurelius" },
-            { t: "Luck is what happens when preparation meets opportunity.", a: "Seneca" }
-        ];
-        const q = quotes[Math.floor(Math.random()*quotes.length)];
-        document.getElementById('quote-body').innerText = `"${q.t}"`;
-        document.getElementById('quote-cite').innerText = `— ${q.a}`;
+        document.getElementById('quote').innerText = `"The soul becomes dyed with the color of its thoughts."`;
+        document.getElementById('author').innerText = "— Marcus Aurelius";
 
-        // Pixel Wake Lock (Prevents Screen Dimming during sound)
-        const requestWakeLock = async () => {
-            try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } 
-            catch (err) { console.log("WakeLock failed"); }
-        };
+        // FIX 4: Use 'touchstart' for instant mobile response
+        const handleInteraction = (e) => {
+            if (e) e.preventDefault();
+            
+            // Haptic Feedback
+            if (navigator.vibrate) navigator.vibrate(40);
 
-        const toggleSpace = () => {
-            if (navigator.vibrate) navigator.vibrate([30, 15, 30]);
-
-            if (!isActive) {
+            if (!active) {
+                // Audio Unlock
                 audio.play().then(() => {
-                    isActive = true;
-                    body.classList.add('is-immersed');
-                    trigger.classList.add('active-glow');
+                    active = true;
+                    shell.classList.add('is-immersed');
                     breath.style.opacity = "1";
-                    document.getElementById('btn-text').innerText = "";
-                    document.getElementById('btn-status').innerText = "In Orbit";
-                    log.innerText = "Deep Immersion Active";
-                    requestWakeLock();
-                    runBreath();
-                }).catch(() => {
+                    document.getElementById('label').innerText = "Active";
+                    document.getElementById('status').innerText = "In Space";
+                    startBreathing();
+                }).catch(err => {
+                    // Try to force un-mute if browser blocked it
                     audio.muted = true;
-                    audio.play().then(() => { audio.muted = false; isActive = true; body.classList.add('is-immersed'); });
+                    audio.play().then(() => { 
+                        audio.muted = false; 
+                        active = true;
+                        shell.classList.add('is-immersed');
+                    });
                 });
             } else {
                 audio.pause();
-                isActive = false;
-                if (wakeLock) wakeLock.release();
-                body.classList.remove('is-immersed');
-                trigger.classList.remove('active-glow');
+                active = false;
+                shell.classList.remove('is-immersed');
                 breath.style.opacity = "0";
-                document.getElementById('btn-text').innerText = "Begin Immersion";
-                document.getElementById('btn-status').innerText = "Standby";
+                document.getElementById('label').innerText = "Begin Immersion";
+                document.getElementById('status').innerText = "Standby";
             }
         };
 
-        trigger.addEventListener('click', toggleSpace);
+        btn.addEventListener('touchstart', handleInteraction);
+        // Fallback for desktop testing
+        btn.addEventListener('click', (e) => { if(!active) handleInteraction(e); });
 
-        function runBreath() {
-            if (!isActive) return;
+        function startBreathing() {
+            if (!active) return;
             breath.style.transform = "scale(8)";
             setTimeout(() => {
-                if (isActive) {
+                if (active) {
                     breath.style.transform = "scale(1)";
-                    setTimeout(runBreath, 4000);
+                    setTimeout(startBreathing, 4000);
                 }
             }, 4000);
         }
