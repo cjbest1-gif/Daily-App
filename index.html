@@ -7,22 +7,68 @@
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Orbiter">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/240/space-shuttle.png">
+    <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/48/space-shuttle.png">
     <meta name="theme-color" content="#050a15">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --accent: #38bdf8; --bg: #050a15; }
-        body { background: var(--bg); transition: background 2s ease; padding-top: env(safe-area-inset-top); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .active-zen { background: rgba(56, 189, 248, 0.15) !important; border-color: var(--accent) !important; color: white !important; box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); }
-        
-        .btn-push { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); background-color: #1e293b; color: #475569; pointer-events: none; }
-        .btn-active { background-color: var(--accent) !important; color: white !important; opacity: 1 !important; pointer-events: auto !important; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4), 0 4px 0 #0369a1 !important; transform: scale(1.02); }
-
-        #focus-overlay { display: none; position: fixed; inset: 0; z-index: 100; background: radial-gradient(circle at center, #0a1122 0%, #000 100%); flex-direction: column; align-items: center; justify-content: center; }
-        .timer-glow { text-shadow: 0 0 25px var(--accent); transition: color 2s ease, text-shadow 2s ease; }
-        .orbiter-pulse { animation: orbiter-glow 4s infinite ease-in-out; }
-        @keyframes orbiter-glow { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; text-shadow: 0 0 10px var(--accent); } }
+        body { 
+            background: var(--bg); 
+            transition: background 2s ease; 
+            padding-top: env(safe-area-inset-top); 
+            overflow-x: hidden; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        .glass { 
+            background: rgba(255, 255, 255, 0.02); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+        }
+        .active-zen { 
+            background: rgba(56, 189, 248, 0.15) !important; 
+            border-color: var(--accent) !important; 
+            color: white !important; 
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); 
+        }
+        .btn-push { 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            background-color: #1e293b; 
+            color: #475569; 
+            pointer-events: none; 
+        }
+        .btn-active { 
+            background-color: var(--accent) !important; 
+            color: white !important; 
+            opacity: 1 !important; 
+            pointer-events: auto !important; 
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4), 0 4px 0 #0369a1 !important; 
+            transform: scale(1.02); 
+        }
+        #focus-overlay { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            z-index: 100; 
+            background: radial-gradient(circle at center, #0a1122 0%, #000 100%); 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        .timer-glow { 
+            text-shadow: 0 0 25px var(--accent); 
+            transition: color 2s ease, text-shadow 2s ease; 
+        }
+        .orbiter-pulse { 
+            animation: orbiter-glow 4s infinite ease-in-out; 
+        }
+        @keyframes orbiter-glow { 
+            0%, 100% { opacity: 0.5; } 
+            50% { opacity: 1; text-shadow: 0 0 10px var(--accent); } 
+        }
     </style>
 </head>
 <body class="text-slate-400 min-h-screen p-6 font-sans pb-40 select-none">
@@ -37,7 +83,7 @@
         </header>
 
         <section class="glass rounded-2xl p-6 mb-6 border-l-2 border-l-sky-500">
-            <h2 class="text-[9px] font-bold text-white uppercase tracking-widest mb-3">Yesterday's Insight</h2>
+            <h2 class="text-[9px] font-bold text-white uppercase tracking-widest mb-3">Orbiter Insight</h2>
             <input type="text" id="reflection-input" oninput="checkInput()" autocomplete="off" placeholder="Input to initialize..." 
                 class="w-full bg-transparent border-b border-white/10 py-2 text-sm text-slate-100 focus:outline-none focus:border-sky-500 transition-all">
         </section>
@@ -45,8 +91,8 @@
         <section class="glass rounded-2xl p-6 mb-6">
             <h2 class="text-[9px] font-bold text-amber-500 uppercase tracking-widest mb-4 text-center">Global Briefing</h2>
             <div class="space-y-3 text-[11px] leading-relaxed">
-                <p class="border-b border-white/5 pb-2"><strong>Ceasefire:</strong> Doha talks show promise; crude drops 4.2%.</p>
-                <p><strong>Energy:</strong> Regional reserves stabilizing as supply routes reopen.</p>
+                <p class="border-b border-white/5 pb-2"><strong>Ceasefire:</strong> Doha talks show promise; crude drops 4.2% on news.</p>
+                <p><strong>Energy:</strong> Regional reserves stabilizing as supply routes reopen officially.</p>
             </div>
         </section>
 
@@ -61,7 +107,7 @@
     <div id="focus-overlay">
         <div id="protocol-label" class="text-[10px] tracking-[0.5em] text-sky-500 font-bold mb-6 uppercase">Orbiter: Engaged</div>
         <div id="timer" class="text-8xl font-thin text-white timer-glow">60:00</div>
-        <button onclick="location.reload()" class="mt-24 opacity-20 text-[10px] uppercase tracking-[0.3em] hover:opacity-100 transition-opacity">Abort Session</button>
+        <button onclick="location.reload()" class="mt-24 opacity-20 text-[10px] uppercase tracking-[0.3em] hover:opacity-100 transition-opacity">Abort Mission</button>
     </div>
 
     <footer id="footer-ui" class="fixed bottom-0 left-0 right-0 p-8">
@@ -76,10 +122,8 @@
     <audio id="audio-lofi" loop src="https://assets.mixkit.co/music/preview/mixkit-cyberpunk-gaming-action-loop-1100.mp3"></audio>
 
     <script>
-        // Set Today's Date
         document.getElementById('date-display').innerText = new Date().toLocaleDateString(undefined, {weekday: 'long', month: 'short', day: 'numeric'}).toUpperCase();
 
-        // Instant Unlock Logic
         function checkInput() {
             const input = document.getElementById('reflection-input').value.trim();
             const btn = document.getElementById('lock-btn');
@@ -92,7 +136,6 @@
             }
         }
 
-        // Audio Engine
         let activeAudio = null;
         function toggleZen(type) {
             const target = document.getElementById(`audio-${type}`);
@@ -109,10 +152,9 @@
             }
         }
 
-        // Timer Engine (Safe Initialization)
         let timerInterval = null;
         function startFocus() {
-            if (timerInterval) return; // Prevent double trigger
+            if (timerInterval) return;
             
             document.getElementById('main-ui').style.display = 'none';
             document.getElementById('footer-ui').style.display = 'none';
@@ -127,9 +169,12 @@
                 let secs = time % 60;
                 timerEl.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
                 
-                // Adaptive Color Shifts
                 if (time === 2400) { document.documentElement.style.setProperty('--accent', '#6366f1'); labelEl.style.color = '#6366f1'; }
-                if (time === 1200) { document.documentElement.style.setProperty('--accent', '#f59e0b'); labelEl.style.color = '#f59e0b'; labelEl.innerText = "Final Phase"; }
+                if (time === 1200) { 
+                    document.documentElement.style.setProperty('--accent', '#f59e0b'); 
+                    labelEl.style.color = '#f59e0b'; 
+                    labelEl.innerText = "Final Phase"; 
+                }
                 
                 if (--time < 0) { clearInterval(timerInterval); location.reload(); }
             }, 1000);
