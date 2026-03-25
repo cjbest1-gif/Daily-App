@@ -12,54 +12,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --accent: #38bdf8; --bg: #050a15; }
-        
-        /* THE STARFIELD: CSS Generated (No external image needed) */
-        body { 
-            margin: 0;
-            background: #050a15;
-            background: radial-gradient(circle at bottom, #0a1122 0%, #050a15 100%);
-            overflow-x: hidden;
-            color: #94a3b8;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .star-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            background: transparent;
-        }
-
-        /* Pure CSS Stars */
-        .star {
-            position: absolute; background: white; border-radius: 50%; opacity: 0.5;
-            animation: twinkle var(--duration) infinite ease-in-out;
-        }
+        body { margin: 0; background: #050a15; background: radial-gradient(circle at bottom, #0a1122 0%, #050a15 100%); overflow-x: hidden; color: #94a3b8; -webkit-tap-highlight-color: transparent; }
+        .star-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: twinkle var(--duration) infinite ease-in-out; }
         @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
-
-        .glass { 
-            background: rgba(255, 255, 255, 0.04); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-        }
-
-        .active-zen { 
-            background: rgba(56, 189, 248, 0.3) !important; 
-            border-color: var(--accent) !important; color: white !important; 
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.5); 
-        }
-
-        .btn-active { 
-            background: var(--accent) !important; color: white !important; 
-            opacity: 1 !important; pointer-events: auto !important;
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.4);
-        }
-
-        #focus-overlay { 
-            display: none; position: fixed; inset: 0; z-index: 100; 
-            background: #000; flex-direction: column; align-items: center; justify-content: center; 
-        }
-        
-        .timer-glow { text-shadow: 0 0 30px var(--accent); }
+        .glass { background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .active-zen { background: rgba(56, 189, 248, 0.3) !important; border-color: var(--accent) !important; color: white !important; box-shadow: 0 0 25px rgba(56, 189, 248, 0.5); }
+        .btn-active { background: var(--accent) !important; color: white !important; opacity: 1 !important; pointer-events: auto !important; box-shadow: 0 0 30px rgba(56, 189, 248, 0.4); }
+        #focus-overlay { display: none; position: fixed; inset: 0; z-index: 100; background: #000; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body class="min-h-screen p-6 font-sans pb-32">
@@ -72,7 +32,7 @@
         </header>
 
         <section class="glass rounded-3xl p-6 mb-6 border-t border-white/10">
-            <h2 class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-2">Mission Brief</h2>
+            <h2 class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-2">Command Brief</h2>
             <p id="daily-inspiration" class="text-sm text-slate-200 leading-relaxed italic"></p>
         </section>
 
@@ -92,7 +52,7 @@
 
     <div id="focus-overlay">
         <div class="text-[11px] tracking-[1em] text-sky-500 font-bold mb-8 uppercase">Orbiter: Engaged</div>
-        <div id="timer" class="text-8xl font-thin text-white timer-glow mb-20">60:00</div>
+        <div id="timer" class="text-8xl font-thin text-white mb-20">60:00</div>
         <button onclick="stopFocus()" class="py-4 px-10 glass rounded-full text-[10px] uppercase tracking-[0.4em]">Return to Deck</button>
     </div>
 
@@ -102,33 +62,46 @@
         </button>
     </footer>
 
-    <audio id="audio-ocean" loop preload="auto" src="https://www.soundjay.com/nature/ocean-waves-1.mp3"></audio>
-    <audio id="audio-storm" loop preload="auto" src="https://www.soundjay.com/nature/thunderstorm-01.mp3"></audio>
-    <audio id="audio-rain" loop preload="auto" src="https://www.soundjay.com/nature/rain-01.mp3"></audio>
-    <audio id="audio-lofi" loop preload="auto" src="https://assets.mixkit.co/music/preview/mixkit-night-city-744.mp3"></audio>
+    <audio id="audio-ocean" loop src="https://www.soundjay.com/nature/ocean-waves-1.mp3"></audio>
+    <audio id="audio-storm" loop src="https://www.soundjay.com/nature/thunderstorm-01.mp3"></audio>
+    <audio id="audio-rain" loop src="https://www.soundjay.com/nature/rain-01.mp3"></audio>
+    <audio id="audio-lofi" loop src="https://assets.mixkit.co/music/preview/mixkit-night-city-744.mp3"></audio>
 
     <script>
-        // Generate Starfield dynamically
+        // Generate Stars
         const starLayer = document.getElementById('star-layer');
         for (let i = 0; i < 80; i++) {
             const star = document.createElement('div');
             star.className = 'star';
             const size = Math.random() * 2 + 'px';
-            star.style.width = size;
-            star.style.height = size;
-            star.style.top = Math.random() * 100 + '%';
-            star.style.left = Math.random() * 100 + '%';
+            star.style.width = size; star.style.height = size;
+            star.style.top = Math.random() * 100 + '%'; star.style.left = Math.random() * 100 + '%';
             star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
             starLayer.appendChild(star);
         }
 
-        const messages = ["Focus is a muscle. Train it.", "Small wins lead to big orbits.", "Minimize the noise, maximize the signal.", "Trajectory set. Execute."];
-        document.getElementById('daily-inspiration').innerText = `"${messages[Math.floor(Math.random() * messages.length)]}"`;
+        // Real Quotes Database
+        const realQuotes = [
+            "Very little is needed to make a happy life; it is all within yourself, in your way of thinking. — Marcus Aurelius",
+            "Luck is what happens when preparation meets opportunity. — Seneca",
+            "You do not rise to the level of your goals. You fall to the level of your systems. — James Clear",
+            "The impediment to action advances action. What stands in the way becomes the way. — Marcus Aurelius",
+            "He who has a why to live for can bear almost any how. — Friedrich Nietzsche"
+        ];
+        document.getElementById('daily-inspiration').innerText = realQuotes[Math.floor(Math.random() * realQuotes.length)];
+
+        let audioContextStarted = false;
 
         function checkInput() {
             const val = document.getElementById('reflection-input').value.trim();
             const btn = document.getElementById('lock-btn');
             btn.classList.toggle('btn-active', val.length > 0);
+            
+            // PIXEL 8 FIX: Warm up audio engine on typing
+            if (!audioContextStarted) {
+                document.querySelectorAll('audio').forEach(a => { a.play().then(() => a.pause()).catch(() => {}); });
+                audioContextStarted = true;
+            }
         }
 
         let currentAudio = null;
@@ -147,14 +120,17 @@
                     document.querySelectorAll('.active-zen').forEach(b => b.classList.remove('active-zen'));
                 }
                 
-                // Chrome Mobile Fix: Interact then Play
                 target.currentTime = 0;
-                target.play().then(() => {
-                    currentAudio = target;
-                    btn.classList.add('active-zen');
-                }).catch(e => {
-                    alert("Ensure your Media volume is up and try tapping again.");
-                });
+                // Force Playback
+                var playPromise = target.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        currentAudio = target;
+                        btn.classList.add('active-zen');
+                    }).catch(error => {
+                        console.error("Audio blocked:", error);
+                    });
+                }
             }
         }
 
