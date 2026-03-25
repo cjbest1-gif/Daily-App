@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import './App.css';
 
-const HorizonOceanStealth = () => {
+function App() {
   const [isActive, setIsActive] = useState(false);
   const [showGhostField, setShowGhostField] = useState(false);
   const [reflection, setReflection] = useState("");
 
-  // Update this ID with your specific Spotify Playlist ID
-  const SPOTIFY_LINK = "spotify:playlist:0G38p5E6BvHwZ4j1v8i2Oq";
+  // Update this with the Spotify link you provided
+  const SPOTIFY_LINK = "https://open.spotify.com/playlist/0G38p5E6BvHwZ4j1v8i2Oq";
 
   const handleToggleFocus = () => {
     if (!isActive) {
@@ -16,77 +17,51 @@ const HorizonOceanStealth = () => {
       setShowGhostField(false);
     } else {
       setIsActive(false);
-      // Delay the ghost field slightly for a smooth transition
+      // Fade in the Ghost Field after the focus ends
       setTimeout(() => setShowGhostField(true), 800);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-stealth-black flex flex-col items-center justify-between py-20 px-6 select-none overflow-hidden">
-      
-      {/* Top Branding - Fades during focus */}
-      <header className={`transition-opacity duration-1000 ${isActive ? 'opacity-5' : 'opacity-100'}`}>
-        <h1 className="text-xs tracking-[0.8em] uppercase font-extralight text-ocean-blue/80">
-          Horizon
-        </h1>
+    <div className="app-container">
+      {/* Top Branding */}
+      <header className={isActive ? 'fade-out' : 'fade-in'}>
+        <h1 className="branding">HORIZON</h1>
       </header>
 
-      {/* Main Interaction Zone */}
-      <main className="relative flex flex-col items-center justify-center flex-1 w-full">
-        
-        {/* The Deep Focus Button (Orbiter Style) */}
-        <div className="relative group cursor-pointer" onClick={handleToggleFocus}>
+      {/* Deep Focus Button */}
+      <div className="interaction-zone">
+        <div className="button-wrapper" onClick={handleToggleFocus}>
+          {isActive && <div className="breath-ring"></div>}
+          {isActive && <div className="breath-ring delay"></div>}
           
-          {/* Pulsing Breath-Rings */}
-          {isActive && (
-            <>
-              <div className="absolute inset-0 rounded-full animate-breath border border-ocean-blue/40" />
-              <div className="absolute inset-0 rounded-full animate-breath border border-ocean-blue/20 [animation-delay:2s]" />
-            </>
-          )}
-
-          {/* The Primary Button */}
-          <div className={`relative z-10 w-64 h-64 rounded-full border flex items-center justify-center transition-all duration-1000 ease-out
-            ${isActive 
-              ? 'border-ocean-blue bg-ocean-blue/5 shadow-[0_0_80px_rgba(0,119,190,0.2)]' 
-              : 'border-white/10 bg-transparent'}`}
-          >
-            <div className="text-center">
-              <p className={`text-[10px] tracking-[0.4em] uppercase mb-2 transition-colors duration-700
-                ${isActive ? 'text-ocean-blue' : 'text-white/20'}`}>
-                {isActive ? 'Immersion' : 'Ready'}
-              </p>
-              <div className={`h-[1px] w-8 mx-auto transition-all duration-700
-                ${isActive ? 'bg-ocean-blue w-12' : 'bg-white/10'}`} />
-            </div>
+          <div className={`main-button ${isActive ? 'active' : ''}`}>
+            <span className="button-text">
+              {isActive ? 'IMMERSION' : 'BEGIN'}
+            </span>
           </div>
         </div>
 
         {/* Ghost Reflection Field */}
-        <div className="absolute bottom-[-100px] w-full flex justify-center">
+        <div className="ghost-container">
           {showGhostField && !isActive && (
-            <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 w-full max-w-xs">
-              <input 
-                autoFocus
-                type="text"
-                value={reflection}
-                onChange={(e) => setReflection(e.target.value)}
-                placeholder="What was achieved?"
-                className="w-full bg-transparent border-b border-ocean-blue/20 py-4 text-center text-ocean-blue font-light italic outline-none focus:border-ocean-blue/60 transition-colors placeholder:text-white/10"
-              />
-            </div>
+            <input 
+              autoFocus
+              type="text"
+              value={reflection}
+              onChange={(e) => setReflection(e.target.value)}
+              placeholder="What was achieved?"
+              className="ghost-input"
+            />
           )}
         </div>
-      </main>
+      </div>
 
-      {/* Footer Status */}
-      <footer className={`transition-opacity duration-1000 ${isActive ? 'opacity-0' : 'opacity-30'}`}>
-        <p className="text-[9px] tracking-widest uppercase text-white">
-          Efficiency through Focus
-        </p>
+      <footer className={isActive ? 'fade-out' : 'fade-in'}>
+        <p className="footer-text">EFFICIENCY THROUGH FOCUS</p>
       </footer>
     </div>
   );
-};
+}
 
-export default HorizonOceanStealth;
+export default App;
