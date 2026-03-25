@@ -6,156 +6,115 @@
     <title>Horizon</title>
     
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
     <link rel="icon" type="image/png" href="https://img.icons8.com/fluency-systems-filled/96/ff5f1f/horizon.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
-        
         :root { --orange: #ff5f1f; --black: #000000; }
-
         body { 
-            font-family: 'Space Grotesk', sans-serif;
-            background: var(--black);
-            color: #ffffff;
-            -webkit-tap-highlight-color: transparent;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            user-select: none;
+            font-family: 'Space Grotesk', sans-serif; background: var(--black); color: #ffffff;
+            -webkit-tap-highlight-color: transparent; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column; user-select: none;
         }
-
         .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 95, 31, 0.1);
-            backdrop-filter: blur(50px);
-            -webkit-backdrop-filter: blur(50px);
+            background: rgba(255, 95, 31, 0.03); border: 1px solid rgba(255, 95, 31, 0.15);
+            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
         }
-
         .orange-glow { text-shadow: 0 0 20px rgba(255, 95, 31, 0.6); }
-        
-        /* High-tech scanline overlay */
-        .ui-overlay {
-            position: fixed; inset: 0; pointer-events: none; z-index: 50;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
-            background-size: 100% 4px;
-            opacity: 0.4;
-        }
-
-        .breath-ring {
-            width: 12px; height: 12px; background: var(--orange); border-radius: 50%;
-            opacity: 0; transition: transform 4s ease-in-out, opacity 0.8s ease;
-            filter: drop-shadow(0 0 8px var(--orange));
-        }
-
         .active-btn { 
             border-color: var(--orange) !important; 
-            box-shadow: 0 0 40px rgba(255, 95, 31, 0.15); 
-            background: rgba(255, 95, 31, 0.03) !important;
+            box-shadow: 0 0 50px rgba(255, 95, 31, 0.2); 
+            background: rgba(255, 95, 31, 0.08) !important;
         }
-
-        /* Prevent text jitter during animations */
-        p, h1, span { backface-visibility: hidden; transform: translateZ(0); }
+        .breath-ring {
+            width: 14px; height: 14px; background: var(--orange); border-radius: 50%;
+            opacity: 0; transition: transform 4s ease-in-out, opacity 0.8s ease;
+            filter: drop-shadow(0 0 10px var(--orange));
+        }
     </style>
 </head>
-<body class="p-8 pb-16" onclick="masterUnlock()">
+<body class="p-8 pb-16">
 
-    <div class="ui-overlay"></div>
-
-    <header class="mt-10 flex flex-col z-10">
+    <header class="mt-10 flex flex-col">
         <h1 class="text-5xl font-bold tracking-tighter uppercase text-white orange-glow leading-none">Horizon</h1>
         <p id="date-label" class="text-[10px] tracking-[0.65em] text-orange-500 font-bold mt-4 uppercase"></p>
     </header>
 
-    <main class="flex-1 flex flex-col justify-center z-10">
-        <div class="glass-card p-12 rounded-[3.5rem] relative overflow-hidden border-l-[6px] border-orange-600 transition-all duration-700">
+    <main class="flex-1 flex flex-col justify-center">
+        <div class="glass-card p-12 rounded-[3.5rem] relative overflow-hidden border-l-[6px] border-orange-600">
             <p id="quote-body" class="text-2xl leading-[1.15] font-light text-white/90 italic">
-                "The impediment to action advances action. What stands in the way becomes the way."
+                "The soul becomes dyed with the color of its thoughts."
             </p>
             <p id="quote-cite" class="mt-10 text-[10px] font-bold uppercase tracking-[0.5em] text-orange-500/50">— Marcus Aurelius</p>
         </div>
     </main>
 
-    <footer class="z-10">
-        <button id="main-btn" onclick="toggleImmersion(event)" 
-            class="w-full py-12 glass-card rounded-[3rem] flex flex-col items-center justify-center transition-all duration-500 active:scale-95 hover:bg-white/5">
+    <footer>
+        <button id="main-btn" onclick="toggleImmersion()" 
+            class="w-full py-12 glass-card rounded-[3rem] flex flex-col items-center justify-center transition-all duration-500 active:scale-95">
             <div id="breath-circle" class="breath-ring mb-4"></div>
             <span id="status-text" class="text-[9px] font-bold uppercase tracking-[0.7em] text-white/20">System Deck</span>
-            <span id="label-text" class="text-xl font-bold text-white mt-1 tracking-tight">Begin Immersion</span>
+            <span id="label-text" class="text-xl font-bold text-white mt-1 tracking-tight">Tap to Start</span>
         </button>
     </footer>
 
-    <audio id="ocean-snd" loop crossorigin="anonymous" src="https://www.soundjay.com/nature/ocean-waves-1.mp3"></audio>
+    <audio id="ocean-snd" loop preload="auto" crossorigin="anonymous">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2513/2513-preview.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
-        // Update System Clock
-        const initSystem = () => {
-            const d = new Date();
-            document.getElementById('date-label').innerText = d.toLocaleDateString(undefined, {weekday: 'long', month: 'short', day: 'numeric'});
-        };
-        initSystem();
+        // Update Time
+        document.getElementById('date-label').innerText = new Date().toLocaleDateString(undefined, {weekday: 'long', month: 'short', day: 'numeric'});
 
-        // Insight Engine
-        const insights = [
-            { t: "You have power over your mind—not outside events. Realize this, and you will find strength.", a: "Marcus Aurelius" },
-            { t: "Luck is what happens when preparation meets opportunity.", a: "Seneca" },
-            { t: "The soul becomes dyed with the color of its thoughts.", a: "Marcus Aurelius" },
-            { t: "You fall to the level of your systems. You do not rise to the level of your goals.", a: "James Clear" }
-        ];
-        const choice = insights[Math.floor(Math.random()*insights.length)];
-        document.getElementById('quote-body').innerText = `"${choice.t}"`;
-        document.getElementById('quote-cite').innerText = `— ${choice.a}`;
-
-        // Audio & Haptic Core
         const snd = document.getElementById('ocean-snd');
         const btn = document.getElementById('main-btn');
         const circle = document.getElementById('breath-circle');
+        const label = document.getElementById('label-text');
+        const status = document.getElementById('status-text');
+        
         let active = false;
 
-        function masterUnlock() {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            if (ctx.state === 'suspended') ctx.resume();
-        }
+        // PIXEL 8 PRO FIX: Ensure the AudioContext is resumed AND audio is played
+        function toggleImmersion() {
+            // 1. Haptic feedback
+            if (navigator.vibrate) navigator.vibrate(25);
 
-        // Handle app coming back to focus
-        document.addEventListener("visibilitychange", () => {
-            if (!document.hidden && active) {
-                masterUnlock();
-                snd.play().catch(() => {});
-            }
-        });
-
-        function toggleImmersion(e) {
-            e.stopPropagation(); // Prevent masterUnlock double-firing
-            
-            // Pixel Haptic Pulse
-            if (window.navigator.vibrate) window.navigator.vibrate(20);
-            
+            // 2. Audio Logic
             if (!active) {
-                snd.play().then(() => {
-                    active = true;
-                    btn.classList.add('active-btn');
-                    circle.style.opacity = '1';
-                    document.getElementById('label-text').innerText = "Ocean Active";
-                    document.getElementById('label-text').classList.add('text-orange-500');
-                    document.getElementById('status-text').innerText = "Breathing Active";
-                    runBreath();
-                }).catch(() => {
-                    // Fail-safe for aggressive Chrome auto-play blocks
-                    snd.muted = true;
-                    snd.play().then(() => { snd.muted = false; active = true; });
-                });
+                // We try to play the sound directly
+                const playPromise = snd.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        // Success!
+                        active = true;
+                        btn.classList.add('active-btn');
+                        circle.style.opacity = '1';
+                        label.innerText = "Ocean Active";
+                        label.classList.add('text-orange-500');
+                        status.innerText = "Immersion Engaged";
+                        runBreath();
+                    }).catch(error => {
+                        console.error("Playback failed:", error);
+                        // Fallback: Try a second play attempt after a tiny delay
+                        setTimeout(() => {
+                            snd.play();
+                            active = true;
+                            btn.classList.add('active-btn');
+                            label.innerText = "Ocean Active";
+                        }, 100);
+                    });
+                }
             } else {
                 snd.pause();
                 active = false;
                 btn.classList.remove('active-btn');
                 circle.style.opacity = '0';
-                document.getElementById('label-text').innerText = "Begin Immersion";
-                document.getElementById('label-text').classList.remove('text-orange-500');
-                document.getElementById('status-text').innerText = "System Deck";
+                label.innerText = "Begin Immersion";
+                label.classList.remove('text-orange-500');
+                status.innerText = "System Deck";
             }
         }
 
